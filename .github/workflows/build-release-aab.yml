@@ -44,3 +44,4 @@ jobs:
         with:
           name: app-release.aab
           path: app-release.aab
+          retention-days: 1
