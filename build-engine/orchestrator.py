@@ -39,6 +39,25 @@ def run_cmd(cmd, cwd=None, env=None):
     return res.stdout
 
 
+def update_kotlin_main_activity(workspace_dir: str, package_name: str):
+    """Dynamically syncs MainActivity.kt package declaration and directory location to match package_name."""
+    kotlin_base = os.path.join(workspace_dir, "android", "app", "src", "main", "kotlin")
+
+    # Remove existing template Kotlin source directories to prevent orphaned files
+    if os.path.exists(kotlin_base):
+        shutil.rmtree(kotlin_base)
+
+    package_path = os.path.join(kotlin_base, *package_name.split('.'))
+    os.makedirs(package_path, exist_ok=True)
+
+    main_activity_file = os.path.join(package_path, "MainActivity.kt")
+    kt_content = f"package {package_name}\n\nimport io.flutter.embedding.android.FlutterActivity\n\nclass MainActivity: FlutterActivity()\n"
+
+    with open(main_activity_file, 'w', encoding='utf-8') as f:
+        f.write(kt_content)
+    print(f"Updated MainActivity.kt at {main_activity_file} with package {package_name}")
+
+
 def update_android_manifest(manifest_path: str, package_name: str, app_name: str, permissions: list):
     """Updates AndroidManifest.xml package name, app label, and injects requested permissions."""
     if not os.path.isfile(manifest_path):
@@ -140,8 +159,14 @@ def merge_pubspec(template_pubspec_path: str, zip_pubspec_data: dict, app_name: 
             if k != 'flutter_test':
                 template_data.setdefault('dev_dependencies', {})[k] = v
 
-    # Register assets folder if exists
+    # Preserve flutter section configuration (assets, fonts, etc.)
     template_data['flutter'] = template_data.get('flutter', {})
+    zip_flutter = zip_pubspec_data.get('flutter', {}) if isinstance(zip_pubspec_data, dict) else {}
+
+    # Merge fonts if present
+    if isinstance(zip_flutter, dict) and 'fonts' in zip_flutter:
+        template_data['flutter']['fonts'] = zip_flutter['fonts']
+
     assets_list = template_data['flutter'].get('assets', [])
     if 'assets/' not in assets_list:
         assets_list.append('assets/')
@@ -162,16 +187,25 @@ def merge_pubspec(template_pubspec_path: str, zip_pubspec_data: dict, app_name: 
 
 
 def process_app_icon(workspace_template_dir: str, icon_rel_path: str):
-    """Optionally replaces default launcher icon if specified in app.json."""
+    """Replaces launcher icon across all Android mipmap resource directories."""
     if not icon_rel_path:
         return
-    src_icon = os.path.join(workspace_template_dir, icon_rel_path)
-    if os.path.isfile(src_icon):
-        # Copy icon into android res drawable
-        res_dir = os.path.join(workspace_template_dir, "android", "app", "src", "main", "res", "drawable")
-        os.makedirs(res_dir, exist_ok=True)
-        shutil.copyfile(src_icon, os.path.join(res_dir, "ic_launcher_app.png"))
-        print(f"Copied custom app icon from {icon_rel_path}")
+    cleaned_rel_path = icon_rel_path.lstrip("/").lstrip("\\")
+    src_icon = os.path.join(workspace_template_dir, cleaned_rel_path)
+    if not os.path.isfile(src_icon):
+        print(f"Warning: Icon file specified in app.json not found at {src_icon}")
+        return
+
+    res_dir = os.path.join(workspace_template_dir, "android", "app", "src", "main", "res")
+    mipmap_dirs = ["mipmap-mdpi", "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi", "mipmap-xxxhdpi"]
+
+    for mdir in mipmap_dirs:
+        target_dir = os.path.join(res_dir, mdir)
+        os.makedirs(target_dir, exist_ok=True)
+        target_file = os.path.join(target_dir, "ic_launcher.png")
+        shutil.copyfile(src_icon, target_file)
+
+    print(f"Successfully applied custom app icon '{icon_rel_path}' across all Android mipmap directories ({len(mipmap_dirs)} densities).")
 
 
 def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
@@ -233,6 +267,7 @@ def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
 
         update_android_manifest(manifest_path, app_data["package"], app_data["name"], app_data.get("permissions", []))
         update_build_gradle_kts(gradle_path, app_data["package"], app_data["version"], app_data["versionCode"])
+        update_kotlin_main_activity(build_workspace_dir, app_data["package"])
         process_app_icon(build_workspace_dir, app_data.get("icon"))
 
         # Merge pubspec safely
@@ -274,13 +309,14 @@ def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
             shutil.copyfile(generated_artifact, output_path)
             print(f"Debug APK output ready: {output_path}")
         else:
-            # Generate temporary keystore for Release signing
-            keystore_file = os.path.join(temp_dir, "forge_release.keystore")
+            # Use permanent repository keystore for Release signing
+            keystore_file = os.path.join(repo_root, "signing", "forge_release.keystore")
             alias = "forge_key"
-            storepass = "ForgeSecureStorePass123!"
-            keypass = "ForgeSecureStorePass123!"
+            storepass = "FlutterForgeKeystore2026!"
+            keypass = "FlutterForgeKeystore2026!"
 
-            generate_keystore(keystore_file, alias, keypass, storepass)
+            if not os.path.isfile(keystore_file):
+                generate_keystore(keystore_file, alias, keypass, storepass)
 
             if build_type == "release-apk":
                 sign_apk(generated_artifact, keystore_file, alias, keypass, storepass, output_path)

@@ -172,8 +172,8 @@ if __name__ == "__main__":
     parser.add_argument("--output", required=False)
     parser.add_argument("--keystore", required=False)
     parser.add_argument("--alias", default="upload")
-    parser.add_argument("--storepass", default="forge_secret_storepass")
-    parser.add_argument("--keypass", default="forge_secret_keypass")
+    parser.add_argument("--storepass", default="FlutterForgeKeystore2026!")
+    parser.add_argument("--keypass", default="FlutterForgeKeystore2026!")
 
     args = parser.parse_args()
 
