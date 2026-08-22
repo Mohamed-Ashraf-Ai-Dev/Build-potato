@@ -11,6 +11,7 @@ ephemeral/
 *.zip
 *.keystore
 *.jks
+!signing/forge_release.keystore
 
 # Android / Gradle artifacts
 .gradle/
