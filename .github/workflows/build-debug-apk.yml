@@ -44,3 +44,4 @@ jobs:
         with:
           name: app-debug.apk
           path: app-debug.apk
+          retention-days: 1
