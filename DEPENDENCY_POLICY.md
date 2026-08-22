@@ -1,7 +1,7 @@
-# Flutter Forge Dependency Policy
+# Mohamed Ashraf Yousef Build Factory Dependency Policy
 
 ## Overview
-Flutter Forge enforces strict safety and reproducibility rules for third-party dependencies supplied via `myapp.zip` (`pubspec.yaml`).
+Mohamed Ashraf Yousef Build Factory enforces strict safety and reproducibility rules for third-party dependencies supplied via `myapp.zip` (`pubspec.yaml`).
 
 ## Rules & Constraints
 

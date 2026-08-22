@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Flutter Forge - Security ZIP Extractor and Validator.
+Mohamed Ashraf Yousef Build Factory - Security ZIP Extractor and Validator.
 Ensures safe extraction of myapp.zip into a temporary workspace.
 """
 

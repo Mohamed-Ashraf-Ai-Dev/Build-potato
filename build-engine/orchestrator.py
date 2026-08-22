@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Flutter Forge Build Orchestrator Engine.
+Mohamed Ashraf Yousef Build Factory Orchestrator Engine.
 Handles end-to-end pipeline:
 1. Receive & Validate ZIP
 2. Validate app.json & pubspec.yaml
@@ -332,10 +332,10 @@ def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
             print(f"Debug APK output ready: {output_path}")
         else:
             # Use permanent repository keystore for Release signing
-            keystore_file = os.path.join(repo_root, "signing", "forge_release.keystore")
-            alias = "forge_key"
-            storepass = "FlutterForgeKeystore2026!"
-            keypass = "FlutterForgeKeystore2026!"
+            keystore_file = os.path.join(repo_root, "signing", "release.keystore")
+            alias = "release_key"
+            storepass = "MohamedAshrafYousef2026!"
+            keypass = "MohamedAshrafYousef2026!"
 
             if not os.path.isfile(keystore_file):
                 generate_keystore(keystore_file, alias, keypass, storepass)
@@ -353,7 +353,7 @@ def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Flutter Forge Build Orchestrator")
+    parser = argparse.ArgumentParser(description="Mohamed Ashraf Yousef Build Factory Orchestrator")
     parser.add_argument("--zip", required=True, help="Path to input myapp.zip")
     parser.add_argument("--type", choices=["debug-apk", "release-apk", "release-aab"], required=True, help="Build target type")
     parser.add_argument("--output", required=True, help="Path for output signed artifact")

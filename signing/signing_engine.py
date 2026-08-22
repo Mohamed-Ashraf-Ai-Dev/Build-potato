@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Flutter Forge - Independent Signing Engine.
+Mohamed Ashraf Yousef Build Factory - Independent Signing Engine.
 Generates temporary keystores, signs Release APK and Release AAB, and verifies signatures.
 Zero credentials printed to logs or committed to git.
 """
@@ -41,7 +41,7 @@ def run_command(cmd, log_output=True, sensitive=False):
     return res.stdout
 
 
-def generate_keystore(keystore_path: str, alias: str, keypass: str, storepass: str, dname: str = "CN=FlutterForge"):
+def generate_keystore(keystore_path: str, alias: str, keypass: str, storepass: str, dname: str = "CN=Mohamed Ashraf Yousef"):
     """Generates a temporary keystore using keytool."""
     cmd = [
         "keytool", "-genkeypair", "-v",
@@ -166,14 +166,14 @@ def verify_aab_signature(aab_path: str) -> bool:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Flutter Forge Signing Engine")
+    parser = argparse.ArgumentParser(description="Mohamed Ashraf Yousef Build Factory Signing Engine")
     parser.add_argument("--action", choices=["genkey", "sign-apk", "sign-aab", "verify-apk", "verify-aab"], required=True)
     parser.add_argument("--input", required=False)
     parser.add_argument("--output", required=False)
     parser.add_argument("--keystore", required=False)
     parser.add_argument("--alias", default="upload")
-    parser.add_argument("--storepass", default="FlutterForgeKeystore2026!")
-    parser.add_argument("--keypass", default="FlutterForgeKeystore2026!")
+    parser.add_argument("--storepass", default="MohamedAshrafYousef2026!")
+    parser.add_argument("--keypass", default="MohamedAshrafYousef2026!")
 
     args = parser.parse_args()
 
