@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Flutter Forge Comprehensive 23-Test Suite Execution Script.
+Mohamed Ashraf Yousef Build Factory Comprehensive Test Suite Execution Script.
 Executes all 23 verification scenarios required by specification.
 """
 
@@ -62,7 +62,7 @@ def base_valid_files():
             "permissions": ["CAMERA", "INTERNET"]
         }),
         "pubspec.yaml": "name: testapp\ndescription: A test app\nversion: 1.0.0\nenvironment:\n  sdk: '>=3.0.0 <4.0.0'\ndependencies:\n  flutter:\n    sdk: flutter\n",
-        "lib/main.dart": "import 'package:flutter/material.dart'; void main() => runApp(const MaterialApp(home: Scaffold(body: Text('Hello Forge'))));\n"
+        "lib/main.dart": "import 'package:flutter/material.dart'; void main() => runApp(const MaterialApp(home: Scaffold(body: Text('Hello App'))));\n"
     }
 
 
@@ -185,7 +185,7 @@ def test_10_app_name_package_version():
     """Test 10: Customized App name, package, version in app.json."""
     files = base_valid_files()
     files["app.json"] = json.dumps({
-        "name": "Custom Forge App",
+        "name": "Custom App",
         "package": "com.custom.forgeapp",
         "version": "2.5.1",
         "versionCode": 42

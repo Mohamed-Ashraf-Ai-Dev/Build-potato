@@ -1,4 +1,4 @@
-# Git Ignore for Flutter Forge
+# Git Ignore for Mohamed Ashraf Yousef Build Factory
 
 # Build & temporary files
 build/
@@ -11,7 +11,9 @@ ephemeral/
 *.zip
 *.keystore
 *.jks
-!signing/forge_release.keystore
+!signing/release.keystore
+__pycache__/
+*.pyc
 
 # Android / Gradle artifacts
 .gradle/

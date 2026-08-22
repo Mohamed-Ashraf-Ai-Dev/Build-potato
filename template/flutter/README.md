@@ -1,6 +1,6 @@
-# template_app
+# Mohamed Ashraf Yousef App
 
-A new Flutter project.
+Mohamed Ashraf Yousef Android application template.
 
 ## Getting Started
 
