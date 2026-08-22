@@ -1,0 +1,31 @@
+# Git Ignore for Flutter Forge
+
+# Build & temporary files
+build/
+.dart_tool/
+.pub/
+.pub-cache/
+ephemeral/
+*.apk
+*.aab
+*.zip
+*.keystore
+*.jks
+
+# Android / Gradle artifacts
+.gradle/
+local.properties
+**/android/.gradle
+**/android/local.properties
+**/android/app/build
+**/android/app/upload-keystore.jks
+
+# Flutter template build output
+template/flutter/build/
+template/flutter/.dart_tool/
+template/flutter/.pub/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
