@@ -29,9 +29,27 @@ class BuildPipelineError(Exception):
     pass
 
 
-def run_cmd(cmd, cwd=None, env=None):
-    print(f"Executing: {' '.join(cmd)} (cwd={cwd or '.'})")
-    res = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
+DEFAULT_BUILD_TIMEOUT = 900  # 15 minutes max per step
+
+
+def verify_build_environment():
+    """Pre-flight verification of required system tools before starting build."""
+    required_tools = ["flutter", "java", "keytool"]
+    for tool in required_tools:
+        if not shutil.which(tool):
+            raise BuildPipelineError(f"Required toolchain binary '{tool}' not found in system PATH.")
+    print("Build environment pre-flight check passed: flutter, java, keytool present.")
+
+
+def run_cmd(cmd, cwd=None, env=None, timeout=DEFAULT_BUILD_TIMEOUT):
+    print(f"Executing: {' '.join(cmd)} (cwd={cwd or '.'}, timeout={timeout}s)")
+    try:
+        res = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired as e:
+        print(f"STDOUT:\n{e.stdout or ''}")
+        print(f"STDERR:\n{e.stderr or ''}")
+        raise BuildPipelineError(f"Command execution timed out after {timeout} seconds: {' '.join(cmd)}")
+
     if res.returncode != 0:
         print(f"STDOUT:\n{res.stdout}")
         print(f"STDERR:\n{res.stderr}")
@@ -215,6 +233,9 @@ def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
 
     if not os.path.isdir(template_source_dir):
         raise BuildPipelineError(f"Fixed Flutter Template not found at {template_source_dir}")
+
+    # Step 0: Pre-flight tool check
+    verify_build_environment()
 
     # Step 1: Create isolated temporary workspace
     with tempfile.TemporaryDirectory() as temp_dir:

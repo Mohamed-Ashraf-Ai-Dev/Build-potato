@@ -315,6 +315,48 @@ def test_20_path_traversal_attack():
         pass
 
 
+def test_24_excessive_zip_files():
+    """Test 24: Excessive file count in ZIP raises ZIPValidationError."""
+    zip_path = os.path.join(TEST_TEMP, "test24.zip")
+    os.makedirs(os.path.dirname(zip_path), exist_ok=True)
+    with zipfile.ZipFile(zip_path, 'w') as zf:
+        zf.writestr("app.json", json.dumps({"name": "a", "package": "com.a.a", "version": "1.0.0", "versionCode": 1}))
+        zf.writestr("pubspec.yaml", "name: a\nversion: 1.0.0\n")
+        zf.writestr("lib/main.dart", "void main(){}")
+        for i in range(5005):
+            zf.writestr(f"assets/file_{i}.txt", "data")
+
+    try:
+        extract_and_validate_zip(zip_path, os.path.join(TEST_TEMP, "t24_extract"))
+        assert False, "Should have failed due to excessive file count (>5000)"
+    except ZIPValidationError:
+        pass
+
+
+def test_25_main_activity_package_generation():
+    """Test 25: Verify Kotlin MainActivity is placed in correct package directory structure."""
+    files = base_valid_files()
+    files["app.json"] = json.dumps({
+        "name": "Kotlin Test",
+        "package": "com.custom.domain.app",
+        "version": "1.0.0",
+        "versionCode": 1
+    })
+    zip_path = os.path.join(TEST_TEMP, "test25.zip")
+    extract_dir = os.path.join(TEST_TEMP, "t25_extract")
+    make_zip(zip_path, files)
+    extract_and_validate_zip(zip_path, extract_dir)
+
+    from orchestrator import update_kotlin_main_activity
+    dummy_ws = os.path.join(TEST_TEMP, "t25_workspace")
+    update_kotlin_main_activity(dummy_ws, "com.custom.domain.app")
+
+    expected_kt = os.path.join(dummy_ws, "android", "app", "src", "main", "kotlin", "com", "custom", "domain", "app", "MainActivity.kt")
+    assert os.path.isfile(expected_kt), f"MainActivity.kt missing at expected path: {expected_kt}"
+    with open(expected_kt, 'r') as f:
+        assert "package com.custom.domain.app" in f.read()
+
+
 def test_21_empty_assets():
     """Test 21: Build succeeds when assets directory is empty."""
     files = base_valid_files()
@@ -386,6 +428,8 @@ def main():
         ("Test 21: Empty Assets Folder Handling", test_21_empty_assets),
         ("Test 22: Large Project Scale Test", test_22_large_project),
         ("Test 23: Repeated Consecutive Builds", test_23_repeated_builds),
+        ("Test 24: Excessive ZIP File Count", test_24_excessive_zip_files),
+        ("Test 25: MainActivity Package Generation", test_25_main_activity_package_generation),
     ]
 
     for name, func in test_cases:

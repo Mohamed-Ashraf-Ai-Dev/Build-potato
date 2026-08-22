@@ -11,7 +11,7 @@ AI Output (myapp.zip)
   Build Engine (Security Validation & Verification)
        │
        ▼
- Fixed Template Injection (Flutter 3.41.2 / AGP 8.3.0 / Gradle 8.8)
+ Fixed Template Injection (Flutter 3.41.2 / AGP 8.11.1 / Gradle 8.14)
        │
        ▼
  Signing Engine (Keystore Generation & apksigner)
