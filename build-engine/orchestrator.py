@@ -298,8 +298,9 @@ def run_build_pipeline(zip_path: str, build_type: str, output_path: str):
         print("--- Step 5/8: Running flutter pub get, analyze, test ---")
         run_cmd(["flutter", "pub", "get"], cwd=build_workspace_dir)
 
-        # Analyze lib code
-        run_cmd(["flutter", "analyze"], cwd=build_workspace_dir)
+        # Analyze lib code. Non-fatal infos/warnings (for example deprecations)
+        # must not block a build; analyzer errors still return non-zero and fail it.
+        run_cmd(["flutter", "analyze", "--no-fatal-infos", "--no-fatal-warnings"], cwd=build_workspace_dir)
 
         # Run test if test folder exists
         if os.path.isdir(os.path.join(build_workspace_dir, "test")):
