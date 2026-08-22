@@ -22,6 +22,9 @@ FORBIDDEN_FILES = {
 
 ALLOWED_ASSET_PREFIXES = ("assets/images/", "assets/sounds/", "assets/fonts/", "assets/")
 
+MAX_ZIP_SIZE_BYTES = 100 * 1024 * 1024  # 100 MB Limit
+MAX_ZIP_FILE_COUNT = 5000  # 5000 files limit
+
 
 class ZIPValidationError(Exception):
     pass
@@ -42,6 +45,10 @@ def extract_and_validate_zip(zip_path: str, extract_to_dir: str) -> str:
     if not os.path.isfile(zip_path):
         raise ZIPValidationError(f"ZIP file not found at: {zip_path}")
 
+    file_size = os.path.getsize(zip_path)
+    if file_size > MAX_ZIP_SIZE_BYTES:
+        raise ZIPValidationError(f"ZIP file size ({file_size} bytes) exceeds maximum permitted limit ({MAX_ZIP_SIZE_BYTES} bytes)")
+
     if not zipfile.is_zipfile(zip_path):
         raise ZIPValidationError(f"File {zip_path} is not a valid zip file")
 
@@ -50,6 +57,9 @@ def extract_and_validate_zip(zip_path: str, extract_to_dir: str) -> str:
 
     with zipfile.ZipFile(zip_path, 'r') as zf:
         infolist = zf.infolist()
+
+        if len(infolist) > MAX_ZIP_FILE_COUNT:
+            raise ZIPValidationError(f"ZIP contains {len(infolist)} files, exceeding maximum permitted file count limit ({MAX_ZIP_FILE_COUNT})")
 
         # Detect single root wrapper folder offset if present
         root_dirs = set()

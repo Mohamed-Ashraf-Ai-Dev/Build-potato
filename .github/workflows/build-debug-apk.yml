@@ -22,9 +22,10 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Flutter SDK
+      - name: Set up Flutter SDK 3.41.2
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.41.2'
           channel: 'stable'
 
       - name: Install Python dependencies
